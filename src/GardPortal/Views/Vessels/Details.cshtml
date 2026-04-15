@@ -1,0 +1,146 @@
+@model GardPortal.Models.Vessel
+@{
+    ViewData["Title"] = Model.Name;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Vessels</a></li>
+                <li class="breadcrumb-item active">@Model.Name</li>
+            </ol>
+        </nav>
+        <h1 class="h3 mb-0"><i class="bi bi-ship me-2 text-primary"></i>@Model.Name</h1>
+    </div>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-primary me-2">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+            <i class="bi bi-trash me-1"></i>Delete
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Vessel Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-muted">IMO Number</dt>
+                    <dd class="col-sm-7 font-monospace">@Model.ImoNumber</dd>
+
+                    <dt class="col-sm-5 text-muted">Type</dt>
+                    <dd class="col-sm-7"><span class="badge bg-secondary">@Model.VesselType</span></dd>
+
+                    <dt class="col-sm-5 text-muted">Flag State</dt>
+                    <dd class="col-sm-7">@Model.FlagState</dd>
+
+                    <dt class="col-sm-5 text-muted">Gross Tonnage</dt>
+                    <dd class="col-sm-7">@Model.GrossTonnage.ToString("N0") GT</dd>
+
+                    <dt class="col-sm-5 text-muted">Year Built</dt>
+                    <dd class="col-sm-7">@Model.YearBuilt</dd>
+
+                    @if (!string.IsNullOrEmpty(Model.Notes))
+                    {
+                        <dt class="col-sm-5 text-muted">Notes</dt>
+                        <dd class="col-sm-7">@Model.Notes</dd>
+                    }
+
+                    <dt class="col-sm-5 text-muted">Registered</dt>
+                    <dd class="col-sm-7">@Model.CreatedAt.ToString("dd MMM yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Policies</h5>
+                <a asp-controller="Policies" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus me-1"></i>New Policy
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Policies.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Policy #</th>
+                                <th>Coverage</th>
+                                <th>Status</th>
+                                <th>Insured Value</th>
+                                <th>Expires</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var policy in Model.Policies.OrderByDescending(p => p.CreatedAt))
+                            {
+                                <tr>
+                                    <td><a asp-controller="Policies" asp-action="Details" asp-route-id="@policy.Id">@policy.PolicyNumber</a></td>
+                                    <td class="small">@policy.CoverageType</td>
+                                    <td><span class="badge status-@policy.Status.ToString().ToLower()">@policy.Status</span></td>
+                                    <td>@policy.InsuredValue.ToString("C0")</td>
+                                    <td class="small text-muted">@policy.EndDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">No policies found for this vessel.</div>
+                }
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Recent Claims</h5>
+            </div>
+            <div class="card-body p-0">
+                @{
+                    var allClaims = Model.Policies.SelectMany(p => p.Claims).OrderByDescending(c => c.IncidentDate).Take(10).ToList();
+                }
+                @if (allClaims.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Claim #</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Estimated</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in allClaims)
+                            {
+                                <tr>
+                                    <td><a asp-controller="Claims" asp-action="Details" asp-route-id="@claim.Id">@claim.ClaimNumber</a></td>
+                                    <td class="small">@claim.Category</td>
+                                    <td><span class="badge claim-@claim.Status.ToString().ToLower()">@claim.Status</span></td>
+                                    <td>@claim.EstimatedAmount.ToString("C0")</td>
+                                    <td class="small text-muted">@claim.IncidentDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">No claims filed for this vessel.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

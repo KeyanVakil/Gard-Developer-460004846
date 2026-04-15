@@ -1,0 +1,160 @@
+@model GardPortal.Models.Claim
+@using GardPortal.Models
+@{
+    ViewData["Title"] = "File Claim";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a asp-action="Index">Claims</a></li>
+            <li class="breadcrumb-item active">File Claim</li>
+        </ol>
+    </nav>
+    <h1 class="h3"><i class="bi bi-plus-circle me-2 text-danger"></i>File a New Claim</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="PolicyId" class="form-label fw-semibold">Policy *</label>
+                        <select asp-for="PolicyId" class="form-select"
+                                asp-items="@(ViewBag.Policies as IEnumerable<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>)">
+                            <option value="">Select policy...</option>
+                        </select>
+                        <span asp-validation-for="PolicyId" class="text-danger small"></span>
+                        <div class="form-text">Only active policies are listed.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Category" class="form-label fw-semibold">Claim Category *</label>
+                        <select asp-for="Category" class="form-select"
+                                asp-items="Html.GetEnumSelectList<ClaimCategory>()">
+                            <option value="">Select category...</option>
+                        </select>
+                        <span asp-validation-for="Category" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IncidentDate" class="form-label fw-semibold">Incident Date *</label>
+                        <input asp-for="IncidentDate" class="form-control" type="date"
+                               max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="IncidentDate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EstimatedAmount" class="form-label fw-semibold">Estimated Amount (USD) *</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="EstimatedAmount" class="form-control" type="number"
+                                   step="100" min="1" placeholder="0" />
+                        </div>
+                        <span asp-validation-for="EstimatedAmount" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"
+                                  placeholder="Describe the incident, damage, or circumstances..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Submit Claim
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>Claim Categories</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Category</th>
+                            <th>Typical Causes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="small">
+                        <tr>
+                            <td><strong>Collision</strong></td>
+                            <td class="text-muted">Contact with another vessel or fixed object</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Grounding</strong></td>
+                            <td class="text-muted">Vessel aground or stranded</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cargo Damage</strong></td>
+                            <td class="text-muted">Loss or damage to carried goods</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Crew Injury</strong></td>
+                            <td class="text-muted">Personal injury or illness of crew members</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Machinery Breakdown</strong></td>
+                            <td class="text-muted">Engine or mechanical failure</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Pollution</strong></td>
+                            <td class="text-muted">Oil spill or environmental discharge</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Other</strong></td>
+                            <td class="text-muted">Any other covered incident</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card border-info mt-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-diagram-3 me-2"></i>Claim Lifecycle</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-column gap-2 small">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="claim-reported">Reported</span>
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span class="claim-underreview">Under Review</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="claim-underreview">Under Review</span>
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span class="claim-approved">Approved</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="claim-approved">Approved</span>
+                        <i class="bi bi-arrow-right text-muted"></i>
+                        <span class="claim-settled">Settled</span>
+                    </div>
+                    <hr class="my-1" />
+                    <div class="d-flex align-items-center gap-2 text-muted">
+                        <i class="bi bi-x-circle me-1"></i>Any open status can be
+                        <span class="claim-denied ms-1">Denied</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScripts")
+}

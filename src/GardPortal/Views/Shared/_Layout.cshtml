@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Gard Portal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gard">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-anchor fs-4"></i>
+                <span class="fw-bold">Gard Portal</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
+                            <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Vessels" asp-action="Index">
+                            <i class="bi bi-ship me-1"></i>Vessels
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Policies" asp-action="Index">
+                            <i class="bi bi-file-earmark-text me-1"></i>Policies
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Claims" asp-action="Index">
+                            <i class="bi bi-exclamation-triangle me-1"></i>Claims
+                        </a>
+                    </li>
+                </ul>
+                <span class="navbar-text text-white-50 small">
+                    <i class="bi bi-shield-check me-1"></i>Marine Insurance Management
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @RenderBody()
+    </div>
+
+    <footer class="footer bg-light border-top mt-auto py-3">
+        <div class="container-fluid">
+            <span class="text-muted small">
+                <i class="bi bi-anchor me-1"></i>Gard Claims &amp; Policy Portal &mdash; Demo Application
+            </span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

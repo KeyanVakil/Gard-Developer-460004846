@@ -1,0 +1,163 @@
+@model GardPortal.Models.Policy
+@using GardPortal.Models
+@{
+    ViewData["Title"] = Model.PolicyNumber;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var validTransitions = Model.Status switch
+    {
+        PolicyStatus.Draft   => new[] { PolicyStatus.Active, PolicyStatus.Cancelled },
+        PolicyStatus.Active  => new[] { PolicyStatus.Expired, PolicyStatus.Cancelled },
+        _ => Array.Empty<PolicyStatus>()
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a asp-action="Index">Policies</a></li>
+                <li class="breadcrumb-item active">@Model.PolicyNumber</li>
+            </ol>
+        </nav>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-file-earmark-text me-2 text-primary"></i>@Model.PolicyNumber
+            <span class="badge status-@Model.Status.ToString().ToLower() ms-2 fs-6">@Model.Status</span>
+        </h1>
+    </div>
+    @if (validTransitions.Any())
+    {
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-arrow-right-circle me-1"></i>Change Status
+            </button>
+            <ul class="dropdown-menu">
+                @foreach (var newStatus in validTransitions)
+                {
+                    <li>
+                        <form asp-action="Transition" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="newStatus" value="@newStatus" />
+                            <button type="submit" class="dropdown-item">
+                                <i class="bi bi-arrow-right me-1"></i>Mark as @newStatus
+                            </button>
+                        </form>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Policy Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5 text-muted">Vessel</dt>
+                    <dd class="col-sm-7">
+                        <a asp-controller="Vessels" asp-action="Details" asp-route-id="@Model.VesselId">
+                            @Model.Vessel?.Name
+                        </a>
+                        <div class="small text-muted">@Model.Vessel?.VesselType</div>
+                    </dd>
+                    <dt class="col-sm-5 text-muted">Coverage</dt>
+                    <dd class="col-sm-7">@Model.CoverageType</dd>
+                    <dt class="col-sm-5 text-muted">Start Date</dt>
+                    <dd class="col-sm-7">@Model.StartDate.ToString("dd MMM yyyy")</dd>
+                    <dt class="col-sm-5 text-muted">End Date</dt>
+                    <dd class="col-sm-7">@Model.EndDate.ToString("dd MMM yyyy")</dd>
+                    <dt class="col-sm-5 text-muted">Created</dt>
+                    <dd class="col-sm-7">@Model.CreatedAt.ToString("dd MMM yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-currency-dollar me-2"></i>Premium Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-6 text-muted">Insured Value</dt>
+                    <dd class="col-sm-6">@Model.InsuredValue.ToString("C0")</dd>
+                    <dt class="col-sm-6 text-muted">Annual Premium</dt>
+                    <dd class="col-sm-6 fw-bold text-success fs-5">@Model.AnnualPremium.ToString("C0")</dd>
+                    <dt class="col-sm-6 text-muted">Effective Rate</dt>
+                    <dd class="col-sm-6">@(Model.InsuredValue > 0 ? (Model.AnnualPremium / Model.InsuredValue * 100).ToString("F3") : "0.000")%</dd>
+                </dl>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Notes))
+        {
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="bi bi-sticky me-2"></i>Notes</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0 small">@Model.Notes</p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Claims</h5>
+                @if (Model.Status == PolicyStatus.Active)
+                {
+                    <a asp-controller="Claims" asp-action="Create" asp-route-policyId="@Model.Id" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-plus me-1"></i>File Claim
+                    </a>
+                }
+            </div>
+            <div class="card-body p-0">
+                @if (Model.Claims.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Claim #</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Estimated</th>
+                                <th>Settled</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var claim in Model.Claims.OrderByDescending(c => c.IncidentDate))
+                            {
+                                <tr>
+                                    <td><a asp-controller="Claims" asp-action="Details" asp-route-id="@claim.Id">@claim.ClaimNumber</a></td>
+                                    <td class="small">@claim.Category</td>
+                                    <td><span class="badge claim-@claim.Status.ToString().ToLower()">@claim.Status</span></td>
+                                    <td>@claim.EstimatedAmount.ToString("C0")</td>
+                                    <td>@(claim.SettledAmount.HasValue ? claim.SettledAmount.Value.ToString("C0") : "-")</td>
+                                    <td class="small text-muted">@claim.IncidentDate.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="3" class="fw-semibold">Total</td>
+                                <td class="fw-semibold">@Model.Claims.Sum(c => c.EstimatedAmount).ToString("C0")</td>
+                                <td class="fw-semibold">@(Model.Claims.Where(c => c.SettledAmount.HasValue).Sum(c => c.SettledAmount!.Value).ToString("C0"))</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                }
+                else
+                {
+                    <div class="text-center py-4 text-muted">No claims filed against this policy.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

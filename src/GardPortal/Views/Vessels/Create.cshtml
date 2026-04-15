@@ -1,0 +1,99 @@
+@model GardPortal.Models.Vessel
+@{
+    ViewData["Title"] = "Register Vessel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+            <li class="breadcrumb-item"><a asp-action="Index">Vessels</a></li>
+            <li class="breadcrumb-item active">Register New Vessel</li>
+        </ol>
+    </nav>
+    <h1 class="h3"><i class="bi bi-plus-circle me-2 text-primary"></i>Register New Vessel</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold">Vessel Name *</label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. MV Nordic Star" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ImoNumber" class="form-label fw-semibold">IMO Number *</label>
+                        <input asp-for="ImoNumber" class="form-control font-monospace" placeholder="7 digits (e.g. 9123456)" maxlength="7" />
+                        <div class="form-text">International Maritime Organization number — exactly 7 digits.</div>
+                        <span asp-validation-for="ImoNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="VesselType" class="form-label fw-semibold">Vessel Type *</label>
+                            <select asp-for="VesselType" class="form-select" asp-items="Html.GetEnumSelectList<GardPortal.Models.VesselType>()">
+                                <option value="">Select type...</option>
+                            </select>
+                            <span asp-validation-for="VesselType" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FlagState" class="form-label fw-semibold">Flag State *</label>
+                            <input asp-for="FlagState" class="form-control" placeholder="e.g. Norway" />
+                            <span asp-validation-for="FlagState" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="GrossTonnage" class="form-label fw-semibold">Gross Tonnage *</label>
+                            <input asp-for="GrossTonnage" class="form-control" type="number" step="0.01" min="1" />
+                            <span asp-validation-for="GrossTonnage" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="YearBuilt" class="form-label fw-semibold">Year Built *</label>
+                            <input asp-for="YearBuilt" class="form-control" type="number" min="1900" max="2100" />
+                            <span asp-validation-for="YearBuilt" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label fw-semibold">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+                        <span asp-validation-for="Notes" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-1"></i>Register Vessel
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle me-2"></i>IMO Number Guide</h6>
+            </div>
+            <div class="card-body small">
+                <p>The IMO ship identification number consists of exactly <strong>7 digits</strong>.</p>
+                <p class="mb-0">Examples: 9123456, 9234567, 9345678</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScripts")
+}

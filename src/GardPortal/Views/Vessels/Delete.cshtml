@@ -1,0 +1,58 @@
+@model GardPortal.Models.Vessel
+@{
+    ViewData["Title"] = "Delete Vessel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Vessels</a></li>
+            <li class="breadcrumb-item active">Delete</li>
+        </ol>
+    </nav>
+    <h1 class="h3 text-danger"><i class="bi bi-trash me-2"></i>Delete Vessel</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to delete the following vessel?</p>
+                <dl class="row">
+                    <dt class="col-sm-4">Name</dt>
+                    <dd class="col-sm-8 fw-bold">@Model.Name</dd>
+                    <dt class="col-sm-4">IMO Number</dt>
+                    <dd class="col-sm-8 font-monospace">@Model.ImoNumber</dd>
+                    <dt class="col-sm-4">Type</dt>
+                    <dd class="col-sm-8">@Model.VesselType</dd>
+                    <dt class="col-sm-4">Flag State</dt>
+                    <dd class="col-sm-8">@Model.FlagState</dd>
+                </dl>
+                @if (Model.Policies.Any(p => p.Status == GardPortal.Models.PolicyStatus.Active))
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        This vessel has <strong>@Model.Policies.Count(p => p.Status == GardPortal.Models.PolicyStatus.Active) active policies</strong>.
+                        It cannot be deleted until all active policies are expired or cancelled.
+                    </div>
+                }
+                <form asp-action="Delete" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger"
+                            @(Model.Policies.Any(p => p.Status == GardPortal.Models.PolicyStatus.Active) ? "disabled" : "")>
+                            <i class="bi bi-trash me-1"></i>Delete Vessel
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-1"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
